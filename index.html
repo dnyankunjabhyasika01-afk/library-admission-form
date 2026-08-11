@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="mr">
 <head>
@@ -221,6 +222,9 @@
     <div class="header">
         <h1>📚 ज्ञानकुंज अभ्यासिका</h1>
         <p>ऑनलाईन विद्यार्थी नोंदणी अर्ज (Online Student Registration)</p>
+        <div id="appIdBadge" style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-top: 8px; display: inline-block;">
+            App ID: <span id="displayAppId">DKA-9096132034-1000</span>
+        </div>
     </div>
 
     <form class="form-body" id="regForm" onsubmit="handleRegistration(event)">
@@ -258,8 +262,8 @@
 
         <div class="row">
             <div class="col form-group">
-                <label>मासिक फी (Monthly Fee ₹)</label>
-                <input type="number" id="monthlyFee" class="form-control" value="1000">
+                <label>मासिक फी (Monthly Fee ₹) <span style="font-size: 11px; color: #0f766e; font-weight: normal;">(ॲप सेटिंगनुसार - Read Only)</span></label>
+                <input type="number" id="monthlyFee" class="form-control" value="1000" readonly style="background-color: #f1f5f9; cursor: not-allowed; font-weight: 600; color: #334155;">
             </div>
             <div class="col form-group">
                 <label>प्रवेश तारीख (Joining Date)</label>
@@ -303,8 +307,8 @@
             <pre id="previewText"></pre>
         </div>
 
-        <div class="owner-info">
-            ज्ञानकुंज अभ्यासिका ऑनलाईन प्रवेश प्रणाली • संपर्क: 9096132034
+        <div class="owner-info" id="ownerInfo">
+            ज्ञानकुंज अभ्यासिका ऑनलाईन प्रवेश प्रणाली • App ID: DKA-9096132034-1000 • संपर्क: 9096132034
         </div>
     </form>
 </div>
@@ -316,6 +320,49 @@
     document.getElementById('registrationDate').value = new Date().toISOString().split('T')[0];
 
     let generatedRegistrationText = "";
+
+    // Parse tracking parameters on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramAppId = urlParams.get('appid');
+        const paramFee = urlParams.get('fee');
+        const paramOwner = urlParams.get('owner');
+
+        let currentOwner = document.getElementById('ownerMobile').value || '9096132034';
+        let currentFee = document.getElementById('monthlyFee').value || '1000';
+        let currentAppId = 'DKA-' + currentOwner + '-' + currentFee;
+
+        if (paramAppId) {
+            currentAppId = paramAppId;
+            const parts = paramAppId.split('-');
+            if (parts.length >= 3) {
+                if (parts[1]) currentOwner = parts[1];
+                if (parts[2]) currentFee = parts[2];
+            }
+        }
+
+        if (paramFee) {
+            currentFee = paramFee;
+        }
+
+        if (paramOwner) {
+            currentOwner = paramOwner;
+        }
+
+        if (!paramAppId && (paramOwner || paramFee)) {
+            currentAppId = 'DKA-' + currentOwner + '-' + currentFee;
+        }
+
+        document.getElementById('monthlyFee').value = currentFee;
+        document.getElementById('ownerMobile').value = currentOwner;
+        const appIdEl = document.getElementById('displayAppId');
+        if (appIdEl) appIdEl.textContent = currentAppId;
+
+        const ownerInfoEl = document.getElementById('ownerInfo');
+        if (ownerInfoEl) {
+            ownerInfoEl.textContent = 'ज्ञानकुंज अभ्यासिका ऑनलाईन प्रवेश प्रणाली • App ID: ' + currentAppId + ' • संपर्क: ' + currentOwner;
+        }
+    });
 
     function handleRegistration(e) {
         e.preventDefault();
@@ -330,7 +377,8 @@
         const address = document.getElementById('address').value.trim();
         const idProofNumber = document.getElementById('idProofNumber').value.trim();
         const remarks = document.getElementById('remarks').value.trim();
-        const ownerMobile = '9096132034';
+        const ownerMobile = document.getElementById('ownerMobile').value.trim() || '9096132034';
+        const displayAppId = document.getElementById('displayAppId').textContent.trim() || ('DKA-' + ownerMobile + '-' + Math.round(monthlyFee));
 
         if (!name || !mobile) {
             alert('कृपया नाव आणि मोबाईल नंबर टाका!');
@@ -353,6 +401,7 @@
         const jsonStr = JSON.stringify(studentData);
 
         const formattedMsg = `📚 *ज्ञानकुंज अभ्यासिका - ऑनलाईन प्रवेश अर्ज*
+🆔 *App ID:* ${displayAppId}
 
 👤 *नाव:* ${name}
 📱 *मोबाईल:* ${mobile}
@@ -380,8 +429,9 @@ ${jsonStr}`;
         }).catch(() => {});
 
         // Open WhatsApp
+        const cleanPhone = ownerMobile.replace(/[^0-9]/g, '');
         const encoded = encodeURIComponent(formattedMsg);
-        const waUrl = `https://api.whatsapp.com/send?phone=91${ownerMobile}&text=${encoded}`;
+        const waUrl = `https://api.whatsapp.com/send?phone=91${cleanPhone}&text=${encoded}`;
         
         window.open(waUrl, '_blank');
     }
