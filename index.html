@@ -266,8 +266,21 @@
                 <input type="number" id="monthlyFee" class="form-control" value="1000" readonly style="background-color: #f1f5f9; cursor: not-allowed; font-weight: 600; color: #334155;">
             </div>
             <div class="col form-group">
+                <label>सध्या भरलेली फी (Fees Paying Now ₹) <span style="font-size: 11px; color: #0f766e; font-weight: normal;">(Read Only)</span></label>
+                <input type="number" id="feesPayingNow" class="form-control" value="0" readonly style="background-color: #f1f5f9; cursor: not-allowed; font-weight: 600; color: #334155;">
+            </div>
+        </div>
+
+        <div id="feeStatusBox" style="padding: 10px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; margin-bottom: 16px; display: none;"></div>
+
+        <div class="row">
+            <div class="col form-group">
                 <label>प्रवेश तारीख (Joining Date)</label>
                 <input type="date" id="registrationDate" class="form-control">
+            </div>
+            <div class="col form-group">
+                <label>संचालकांचा WhatsApp नंबर (Owner Contact)</label>
+                <input type="tel" id="ownerMobile" class="form-control" value="9096132034" readonly style="background-color: #f1f5f9; cursor: not-allowed; font-weight: 600; color: #334155;">
             </div>
         </div>
 
@@ -284,11 +297,6 @@
         <div class="form-group">
             <label>काही विशेष टीप / रिमार्क्स (Remarks)</label>
             <textarea id="remarks" class="form-control" rows="2" placeholder="इतर माहिती..."></textarea>
-        </div>
-
-        <div class="form-group">
-            <label>संचालकांचा WhatsApp नंबर (Owner Contact)</label>
-            <input type="tel" id="ownerMobile" class="form-control" value="9096132034" readonly style="background-color: #f1f5f9; cursor: not-allowed; font-weight: 600; color: #334155;">
         </div>
 
         <button type="submit" class="btn-submit">
@@ -321,48 +329,116 @@
 
     let generatedRegistrationText = "";
 
-    // Parse tracking parameters on page load
-    window.addEventListener('DOMContentLoaded', () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const paramAppId = urlParams.get('appid');
-        const paramFee = urlParams.get('fee');
-        const paramOwner = urlParams.get('owner');
+    // Parse tracking parameters automatically on load and immediately
+    function applyParams() {
+        const searchStr = window.location.search || (window.location.hash.includes('?') ? window.location.hash.substring(window.location.hash.indexOf('?')) : window.location.hash);
+        const urlParams = new URLSearchParams(searchStr);
 
-        let currentOwner = document.getElementById('ownerMobile').value || '9096132034';
-        let currentFee = document.getElementById('monthlyFee').value || '1000';
-        let currentAppId = 'DKA-' + currentOwner + '-' + currentFee;
+        function getParam(aliases) {
+            for (const key of urlParams.keys()) {
+                const lowerKey = key.toLowerCase();
+                for (const alias of aliases) {
+                    if (lowerKey === alias.toLowerCase()) {
+                        return urlParams.get(key);
+                    }
+                }
+            }
+            return null;
+        }
 
-        if (paramAppId) {
-            currentAppId = paramAppId;
-            const parts = paramAppId.split('-');
+        const paramAppId = getParam(['appid', 'app_id', 'id']);
+        const paramFee = getParam(['fee', 'fees', 'monthlyfee', 'monthly_fee', 'amount', 'f']);
+        const paramOwner = getParam(['owner', 'ownermobile', 'owner_mobile', 'phone', 'contact', 'm']);
+
+        let currentOwner = document.getElementById('ownerMobile') ? document.getElementById('ownerMobile').value : '9096132034';
+        let currentFee = document.getElementById('monthlyFee') ? document.getElementById('monthlyFee').value : '1000';
+
+        if (paramAppId && paramAppId.trim() !== '') {
+            const parts = paramAppId.trim().split('-');
             if (parts.length >= 3) {
-                if (parts[1]) currentOwner = parts[1];
-                if (parts[2]) currentFee = parts[2];
+                if (parts[1] && parts[1].trim() !== '') currentOwner = parts[1].trim();
+                const feeFromId = parts[parts.length - 1].trim();
+                if (feeFromId && !isNaN(feeFromId) && parseFloat(feeFromId) > 0) {
+                    currentFee = feeFromId;
+                }
             }
         }
 
-        if (paramFee) {
-            currentFee = paramFee;
+        if (paramFee && paramFee.trim() !== '' && !isNaN(paramFee.trim())) {
+            currentFee = paramFee.trim();
         }
 
-        if (paramOwner) {
-            currentOwner = paramOwner;
+        if (paramOwner && paramOwner.trim() !== '') {
+            currentOwner = paramOwner.trim();
         }
 
-        if (!paramAppId && (paramOwner || paramFee)) {
-            currentAppId = 'DKA-' + currentOwner + '-' + currentFee;
+        let currentAppId = paramAppId || ('DKA-' + currentOwner + '-' + currentFee);
+
+        const feeInput = document.getElementById('monthlyFee');
+        if (feeInput) {
+            feeInput.value = currentFee;
+            feeInput.setAttribute('value', currentFee);
         }
 
-        document.getElementById('monthlyFee').value = currentFee;
-        document.getElementById('ownerMobile').value = currentOwner;
+        const payingNowInput = document.getElementById('feesPayingNow');
+        if (payingNowInput) {
+            payingNowInput.value = '0';
+            payingNowInput.setAttribute('value', '0');
+            payingNowInput.placeholder = 'उदा. 0';
+        }
+
+        const ownerInput = document.getElementById('ownerMobile');
+        if (ownerInput) {
+            ownerInput.value = currentOwner;
+            ownerInput.setAttribute('value', currentOwner);
+        }
+
         const appIdEl = document.getElementById('displayAppId');
-        if (appIdEl) appIdEl.textContent = currentAppId;
+        if (appIdEl) {
+            appIdEl.textContent = currentAppId;
+        }
 
         const ownerInfoEl = document.getElementById('ownerInfo');
         if (ownerInfoEl) {
             ownerInfoEl.textContent = 'ज्ञानकुंज अभ्यासिका ऑनलाईन प्रवेश प्रणाली • App ID: ' + currentAppId + ' • संपर्क: ' + currentOwner;
         }
-    });
+
+        updateFeeStatusIndicator();
+    }
+
+    function updateFeeStatusIndicator() {
+        const monthlyFee = parseFloat(document.getElementById('monthlyFee').value) || 1000;
+        const payingNowVal = document.getElementById('feesPayingNow').value;
+        const payingNow = parseFloat(payingNowVal) || 0;
+        const box = document.getElementById('feeStatusBox');
+        if (!box) return;
+
+        if (payingNowVal === '' || isNaN(payingNow)) {
+            box.style.display = 'none';
+            return;
+        }
+
+        box.style.display = 'block';
+        if (payingNow >= monthlyFee) {
+            box.style.backgroundColor = '#dcfce7';
+            box.style.color = '#166534';
+            box.style.border = '1px solid #86efac';
+            box.innerHTML = '✅ <strong>फी स्टेटस: PAID (पूर्ण फी जमा)</strong>';
+        } else {
+            const due = monthlyFee - payingNow;
+            box.style.backgroundColor = '#fef3c7';
+            box.style.color = '#92400E';
+            box.style.border = '1px solid #fde68a';
+            box.innerHTML = `⚠️ <strong>फी स्टेटस: UNPAID / DUE (अपूर्ण फी)</strong> • सध्या भरली: ₹${payingNow} • बाकी रक्कम: <strong>₹${due}</strong>`;
+        }
+    }
+
+    // Execute immediately and on ready events
+    applyParams();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyParams);
+    }
+    window.addEventListener('load', applyParams);
 
     function handleRegistration(e) {
         e.preventDefault();
@@ -373,6 +449,7 @@
         const shift = document.getElementById('shift').value;
         const seatNumber = document.getElementById('seatNumber').value.trim();
         const monthlyFee = parseFloat(document.getElementById('monthlyFee').value) || 1000;
+        const feesPayingNow = parseFloat(document.getElementById('feesPayingNow').value) || 0;
         const registrationDate = document.getElementById('registrationDate').value;
         const address = document.getElementById('address').value.trim();
         const idProofNumber = document.getElementById('idProofNumber').value.trim();
@@ -385,6 +462,10 @@
             return;
         }
 
+        const isPaid = feesPayingNow >= monthlyFee;
+        const dueAmount = monthlyFee - feesPayingNow;
+        const statusText = isPaid ? "PAID (पूर्ण फी भरली)" : `UNPAID / DUE (बाकी रक्कम: ₹${dueAmount})`;
+
         const studentData = {
             name: name,
             mobile: mobile,
@@ -392,6 +473,8 @@
             shift: shift,
             seatNumber: seatNumber,
             monthlyFee: monthlyFee,
+            feesPayingNow: feesPayingNow,
+            feeStatus: isPaid ? "PAID" : "PENDING",
             registrationDate: registrationDate,
             address: address,
             idProofNumber: idProofNumber,
@@ -409,6 +492,8 @@
 💺 *बैठक क्र.:* ${seatNumber || 'Not Assigned'}
 ⏰ *वेळ/Shift:* ${shift}
 💰 *मासिक फी:* ₹${monthlyFee}
+💵 *सध्या भरलेली फी (Fees Paying Now):* ₹${feesPayingNow}
+📊 *फी स्टेटस:* ${statusText}
 📅 *प्रवेश तारीख:* ${registrationDate}
 🏠 *पत्ता:* ${address || 'N/A'}
 🪪 *आधार क्र.:* ${idProofNumber || 'N/A'}
