@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ज्ञानकुंज अभ्यासिका - ऑनलाईन प्रवेश अर्ज (Online Student Registration)</title>
+    <style>
+        :root {
+            --primary: #0f766e;
+            --primary-dark: #115e59;
+            --whatsapp: #25d366;
+            --whatsapp-dark: #128c7e;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-secondary: #475569;
+            --border: #e2e8f0;
+            --accent: #2dd4bf;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 560px;
+            background: var(--card);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0f766e, #0d9488);
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .form-body {
+            padding: 24px 20px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .form-group label span.req {
+            color: #e11d48;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text);
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .col {
+            flex: 1;
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%20475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 36px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--whatsapp);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn-submit:hover {
+            background: var(--whatsapp-dark);
+        }
+
+        .btn-submit:active {
+            transform: scale(0.98);
+        }
+
+        .btn-copy {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .owner-info {
+            margin-top: 20px;
+            padding: 12px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .preview-box {
+            display: none;
+            margin-top: 20px;
+            padding: 14px;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #065f46;
+        }
+
+        .preview-box pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-top: 8px;
+            font-family: monospace;
+            background: #ffffff;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .toast {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 13px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 480px) {
+            .row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>📚 ज्ञानकुंज अभ्यासिका</h1>
+        <p>ऑनलाईन विद्यार्थी नोंदणी अर्ज (Online Student Registration)</p>
+    </div>
+
+    <form class="form-body" id="regForm" onsubmit="handleRegistration(event)">
+        <div class="form-group">
+            <label>विद्यार्थ्याचे पूर्ण नाव (Full Name) <span class="req">*</span></label>
+            <input type="text" id="name" class="form-control" placeholder="उदा. राहुल शर्मा" required>
+        </div>
+
+        <div class="row">
+            <div class="col form-group">
+                <label>मोबाईल नंबर (Mobile No.) <span class="req">*</span></label>
+                <input type="tel" id="mobile" class="form-control" placeholder="10 अंकी मोबाईल क्र." pattern="[0-9]{10}" maxlength="10" required>
+            </div>
+            <div class="col form-group">
+                <label>पालकांचा नंबर (Guardian Contact)</label>
+                <input type="tel" id="guardianMobile" class="form-control" placeholder="पालकांचा संपर्क क्र." maxlength="10">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col form-group">
+                <label>अभ्यासिकेची वेळ (Shift)</label>
+                <select id="shift" class="form-control">
+                    <option value="Full Day">Full Day (पूर्ण दिवस)</option>
+                    <option value="Morning">Morning (सकाळ)</option>
+                    <option value="Evening">Evening (संध्याकाळ)</option>
+                    <option value="Night">Night (रात्र)</option>
+                </select>
+            </div>
+            <div class="col form-group">
+                <label>पसंतीचा सीट क्र. (Seat No.)</label>
+                <input type="text" id="seatNumber" class="form-control" placeholder="उदा. A01">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col form-group">
+                <label>मासिक फी (Monthly Fee ₹)</label>
+                <input type="number" id="monthlyFee" class="form-control" value="1000">
+            </div>
+            <div class="col form-group">
+                <label>प्रवेश तारीख (Joining Date)</label>
+                <input type="date" id="registrationDate" class="form-control">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>पत्ता (Residential Address)</label>
+            <input type="text" id="address" class="form-control" placeholder="तुमचा पत्ता / गाव">
+        </div>
+
+        <div class="form-group">
+            <label>आधार क्र. / ओळखपत्र (Aadhar / ID Proof)</label>
+            <input type="text" id="idProofNumber" class="form-control" placeholder="आधार क्रमांक">
+        </div>
+
+        <div class="form-group">
+            <label>काही विशेष टीप / रिमार्क्स (Remarks)</label>
+            <textarea id="remarks" class="form-control" rows="2" placeholder="इतर माहिती..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>संचालकांचा WhatsApp नंबर (Owner Contact)</label>
+            <input type="tel" id="ownerMobile" class="form-control" value="9096132034" readonly style="background-color: #f1f5f9; cursor: not-allowed; font-weight: 600; color: #334155;">
+        </div>
+
+        <button type="submit" class="btn-submit">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+            </svg>
+            फॉर्म सबमिट करा & WhatsApp वर पाठवा
+        </button>
+
+        <button type="button" id="copyBtn" class="btn-copy" onclick="copyDataToClipboard()">
+            📋 अर्ज डेटा कॉपी करा (Copy Registration Text)
+        </button>
+
+        <div id="previewBox" class="preview-box">
+            ✅ <strong>अर्ज तयार झाला आहे!</strong> खालील मजकूर WhatsApp वर संचालकांना पाठवला आहे. किंवा कॉपी करून अँपमध्ये इम्पोर्ट करा.
+            <pre id="previewText"></pre>
+        </div>
+
+        <div class="owner-info">
+            ज्ञानकुंज अभ्यासिका ऑनलाईन प्रवेश प्रणाली • संपर्क: 9096132034
+        </div>
+    </form>
+</div>
+
+<div id="toast" class="toast">क्लिपबोर्डवर कॉपी झाले!</div>
+
+<script>
+    // Set default date to today
+    document.getElementById('registrationDate').value = new Date().toISOString().split('T')[0];
+
+    let generatedRegistrationText = "";
+
+    function handleRegistration(e) {
+        e.preventDefault();
+
+        const name = document.getElementById('name').value.trim();
+        const mobile = document.getElementById('mobile').value.trim();
+        const guardianMobile = document.getElementById('guardianMobile').value.trim();
+        const shift = document.getElementById('shift').value;
+        const seatNumber = document.getElementById('seatNumber').value.trim();
+        const monthlyFee = parseFloat(document.getElementById('monthlyFee').value) || 1000;
+        const registrationDate = document.getElementById('registrationDate').value;
+        const address = document.getElementById('address').value.trim();
+        const idProofNumber = document.getElementById('idProofNumber').value.trim();
+        const remarks = document.getElementById('remarks').value.trim();
+        const ownerMobile = '9096132034';
+
+        if (!name || !mobile) {
+            alert('कृपया नाव आणि मोबाईल नंबर टाका!');
+            return;
+        }
+
+        const studentData = {
+            name: name,
+            mobile: mobile,
+            guardianMobile: guardianMobile,
+            shift: shift,
+            seatNumber: seatNumber,
+            monthlyFee: monthlyFee,
+            registrationDate: registrationDate,
+            address: address,
+            idProofNumber: idProofNumber,
+            remarks: remarks
+        };
+
+        const jsonStr = JSON.stringify(studentData);
+
+        const formattedMsg = `📚 *ज्ञानकुंज अभ्यासिका - ऑनलाईन प्रवेश अर्ज*
+
+👤 *नाव:* ${name}
+📱 *मोबाईल:* ${mobile}
+📞 *पालकांचा संपर्क:* ${guardianMobile || 'N/A'}
+💺 *बैठक क्र.:* ${seatNumber || 'Not Assigned'}
+⏰ *वेळ/Shift:* ${shift}
+💰 *मासिक फी:* ₹${monthlyFee}
+📅 *प्रवेश तारीख:* ${registrationDate}
+🏠 *पत्ता:* ${address || 'N/A'}
+🪪 *आधार क्र.:* ${idProofNumber || 'N/A'}
+📝 *टीप:* ${remarks || 'N/A'}
+
+[ONLINE_REGISTRATION]
+${jsonStr}`;
+
+        generatedRegistrationText = formattedMsg;
+
+        document.getElementById('previewText').textContent = formattedMsg;
+        document.getElementById('previewBox').style.display = 'block';
+        document.getElementById('copyBtn').style.display = 'flex';
+
+        // Auto copy to clipboard
+        navigator.clipboard.writeText(formattedMsg).then(() => {
+            showToast('अर्ज डेटा क्लिपबोर्डवर ऑटो-कॉपी झाला!');
+        }).catch(() => {});
+
+        // Open WhatsApp
+        const encoded = encodeURIComponent(formattedMsg);
+        const waUrl = `https://api.whatsapp.com/send?phone=91${ownerMobile}&text=${encoded}`;
+        
+        window.open(waUrl, '_blank');
+    }
+
+    function copyDataToClipboard() {
+        if (!generatedRegistrationText) return;
+        navigator.clipboard.writeText(generatedRegistrationText).then(() => {
+            showToast('अर्ज डेटा क्lipboard वर कॉपी झाला!');
+        });
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 2500);
+    }
+</script>
+</body>
+</html>
